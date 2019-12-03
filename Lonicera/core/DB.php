@@ -2,9 +2,6 @@
 
 namespace Lonicera\core;
 
-use Exception;
-use PDO;
-
 class DB
 {
     private $dbLink;
@@ -38,7 +35,7 @@ class DB
         try {
             $this->dbname = $config['dbname'];
             $dns = "{$config['db']}:host={$config['host']};dbname={$this->dbname}";
-            $this->dbLink = new PDO($dns, $config['username'], $config['password'], $config['param']);
+            $this->dbLink = new \PDO($dns, $config['username'], $config['password'], $config['param']);
         } catch (\PDOException $e) {
             throw $e;
         }
@@ -46,10 +43,10 @@ class DB
         return $this->dbLink;
     }
 
-    public function query($sql, $bind = [], $fetchType = PDO::FETCH_ASSOC)
+    public function query($sql, $bind = [], $fetchType = \PDO::FETCH_ASSOC)
     {
         if (!$this->dbLink) {
-            throw new Exception('数据库连接失败');
+            throw new \Exception('数据库连接失败');
         }
 
         $this->PDOStatement = $this->dbLink->prepare($sql);
@@ -58,6 +55,18 @@ class DB
         $this->rows = count($rel);
 
         return $rel;
+    }
+
+    public function execute($sql, $bind = [])
+    {
+        if (!$this->dbLink) {
+            throw new \Exception('Failed to connect to database');
+        }
+        $this->PDOStatement = $this->dbLink->prepare($sql);
+        $result = $this->PDOStatement->execute($bind);
+        $this->rows = $this->PDOStatement->rowCount();
+
+        return $result;
     }
 
     // 为了避免隐式提交事务，我们在每次创建事务的时候，都去判断是否已经存在事务

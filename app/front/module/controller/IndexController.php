@@ -1,6 +1,7 @@
 <?php
 
 //namespace app\module\front\controller;
+use app\model\User;
 
 class IndexController
 {
@@ -32,5 +33,19 @@ class IndexController
         $model->buildPO('user');
 
         echo "createPoAction\n";
+    }
+
+    // /index/save
+    public function saveAction()
+    {
+        require_once _SYS_PATH.'core/DB.php';
+        require_once _SYS_PATH.'core/Model.php';
+        require_once _APP.'model/User.php';
+        $user = new User();
+        $user->name = 'Lee';
+//        $user->age = 19;
+        $user->save();
+
+        echo "saveAction\n";
     }
 }

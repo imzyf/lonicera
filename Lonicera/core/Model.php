@@ -4,8 +4,30 @@ namespace Lonicera\core;
 
 class Model
 {
+    protected $rule = ['pk' => 'id'];
+
     public function save()
     {
+        $reflect = new \ReflectionClass($this);
+        // 是获取 PUBLIC 字段
+        $props = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC);
+        $sqlTemplate = 'insert into '.$this->getTableNameByPO($reflect).'(';
+        $keyArray = array_column($props, 'name');
+        $keys = implode(',', $keyArray);
+        $prepareKeys = implode(',', array_map(function ($key) {
+            return ':'.$key;
+        }, $keyArray));
+
+        $sqlTemplate = 'insert into '.$this->getTableNameByPO($reflect)."({$keys}) values ({$prepareKeys})";
+        $data = [];
+        foreach ($keyArray as $v) {
+            $data[$v] = $reflect->getProperty($v)->getValue($this);
+        }
+
+        $db = Db::getInstance($GLOBALS['_config']['db']);
+        $result = $db->execute($sqlTemplate, $data);
+
+        return $result;
     }
 
     public function deleteById()
@@ -37,10 +59,18 @@ class Model
         return $realTableName;
     }
 
+    public function getTableNameByPO(\ReflectionClass $reflect)
+    {
+        return $this->getRealTableName(strtolower($reflect->getShortName()));
+    }
+
+    // 生成 po 文件
     public function buildPO($tableName, $prefix = '')
     {
         $db = DB::getInstance($GLOBALS['_config']['db']);
-        $ret = $db->query('select * from `information_schema`.`columns` where TABLE_SCHEMA=:TABLE_SCHEMA AND TABLE_NAME =:TABLE_NAME', ['TABLE_NAME' => $this->getRealTableName($tableName, $prefix), 'TABLE_SCHEMA' => $db->getDbname()]);
+        $sql = 'select * from `information_schema`.`columns`';
+        $sql .= ' where TABLE_SCHEMA=:TABLE_SCHEMA AND TABLE_NAME =:TABLE_NAME';
+        $ret = $db->query($sql, ['TABLE_NAME' => $this->getRealTableName($tableName, $prefix), 'TABLE_SCHEMA' => $db->getDbname()]);
 
         $className = ucfirst($tableName);
         $file = _APP.'model'.DIRECTORY_SEPARATOR.$className.'.php';
