@@ -3,10 +3,15 @@
 namespace Lonicera\core;
 
 /**
- * 路由类
- * 对 path_info 中的信息进行解析，以数组的形式返回正确的路由
- * 形式1： https://域名或ip地址:端口/分组名/控制器名 / 方法名 / 参数1 / 参数2 /
- * 标准形式： https；//域名或ip地址：端口 / 分组名 : 控制器名 / 方法名 ？ 变量1=参数1 & 变量2=参数2.
+ * 核心 路由类.
+ *
+ * 传统形式：index.php?c=index&a=read&id=1&name=Fan
+ * PATH_INFO：index.php/index/read/id/1/name/Fan
+ * eg:
+ * /index.php?c=index&a=read&id=1&name=Fan
+ * /index.php/index/read/id/1/name/Fan?id=1&name=Fan
+ * /index/read/id/1/name/Fan?id=1&name=Fan
+ * /front:index/read/id/1/name/Fan?id=1&name=Fan
  */
 class Route
 {
@@ -21,7 +26,6 @@ class Route
 
     public function __construct()
     {
-        $v = [];
     }
 
     public function init()
@@ -35,12 +39,37 @@ class Route
 
     public function getRequest()
     {
+        return $this->parsePathInfo();
+    }
+
+    // 解析传统形式的 URL
+    private function parseTradition()
+    {
+        $route = [];
+        $route['control'] = $_GET[$GLOBALS['_config']['UrlControllerName']] ?? $GLOBALS['_config']['defaultController'];
+        $route['action'] = $_GET[$GLOBALS['_config']['UrlActionName']] ?? $GLOBALS['_config']['defaultAction'];
+        $route['group'] = $_GET[$GLOBALS['_config']['UrlGroupName']] ?? $GLOBALS['_config']['defaultApp'];
+
+        // 剩下的为方法参数
+        foreach (['UrlControllerName', 'UrlActionName', 'UrlGroupName'] as $configUrl) {
+            unset($_GET[$GLOBALS['_config'][$configUrl]]);
+        }
+        $route['param'] = $_GET;
+
+        return $route;
+    }
+
+    // 解析 PathInfo
+    private function parsePathInfo()
+    {
         $filter_param = ['<', '>', '"', "'", '%3c', '%3C', '%3e', '%3E', '%22', '%27'];
         $uri = str_replace($filter_param, '', $_SERVER['REQUEST_URI']);
-        // 解析 url，返回一个关联数组，其中 path 中存放路径，若参数的形式为 ?a=1&b=1，则会被保存在 query 中。
+        // 解析 url，返回一个关联数组，其中 path 中存放路径，若参数的形式为 ?a=1&b=1，a=1&b=1 则会被保存在 query 中。
         $path = parse_url($uri);
+
         // 取 index.php 后面的内容
-        if (0 == strpos($path['path'], 'index.php')) {
+        if (false === strpos($path['path'], 'index.php')) {
+            // 不存在 index.php
             $urlR0 = $path['path'];
         } else {
             $urlR0 = substr($path['path'], strpos($path['path'], 'index.php') + strlen('index.php'));
@@ -48,11 +77,12 @@ class Route
         // 移除左边 /
         $urlR = ltrim($urlR0, '/');
 
-        // 如果无法使用 parse_url 堆进行处理，证明并非path_info 方式，对其进行传统方式的处理
-//        if($urlR == ''){
-//            $route = $this->paraseTradition();
-//            return $route;
-//        }
+        // 如果无法使用 parse_url 堆进行处理，证明并非 path_info 方式，对其进行传统方式的处理
+        if ('' == $urlR) {
+            $route = $this->parseTradition();
+
+            return $route;
+        }
 
         // 拆分后成为 分组/控制器/方法
         $reqArr = explode('/', $urlR);
@@ -62,17 +92,21 @@ class Route
                 unset($reqArr[$key]);
             }
         }
+
         // 对缺少某些值的情况添加默认值
         $cnt = count($reqArr);
         if (empty($reqArr) || empty($reqArr[0])) {
             $cnt = 0;
         }
+
+        $route = [];
+        $route['group'] = $GLOBALS['_config']['route']['defaultApp']; // 函数外的变量在函数中使用需要添加_GLOBALS
+        $route['control'] = $GLOBALS['_config']['route']['defaultController'];
+        $route['action'] = $GLOBALS['_config']['route']['defaultAction'];
+
         switch ($cnt) {
             // 全部缺少
             case 0:
-                $route['group'] = $GLOBALS['_config']['route']['defaultApp']; //函数外的变量在函数中使用需要添加_GLOBALS
-                $route['control'] = $GLOBALS['_config']['route']['defaultController'];
-                $route['action'] = $GLOBALS['_config']['route']['defaultAction'];
                 break;
 
             // 缺少 action 及后内容
@@ -81,12 +115,9 @@ class Route
                     $gc = explode(':', $reqArr[0]);
                     $route['group'] = $gc[0];
                     $route['control'] = $gc[1];
-                    $route['action'] = $GLOBALS['_config']['defaultAction'];
                 } else {
                     //缺少 group
-                    $route['group'] = $GLOBALS['_config']['defaultApp'];
                     $route['control'] = $reqArr[0];
-                    $route['action'] = $GLOBALS['_config']['defaultAction'];
                 }
                 break;
 
@@ -98,8 +129,7 @@ class Route
                     $route['control'] = $gc[1];
                     $route['action'] = $reqArr[1];
                 } else {
-                    //缺少分组
-                    $route['group'] = $GLOBALS['_config']['defaultApp'];
+                    // 缺少分组
                     $route['control'] = $reqArr[0];
                     $route['action'] = $reqArr[1];
                 }
@@ -109,9 +139,10 @@ class Route
                 }
                 break;
         }
-        // 处理query字符
+
+        // 处理 query 字符
         if (!empty($path['query'])) {
-            parse_str($path['query'], $routeQ); //形式化处理并以数组形式存放
+            parse_str($path['query'], $routeQ); // 形式化处理并以数组形式存放
             if (empty($route['param'])) {
                 $route['param'] = [];
             }
