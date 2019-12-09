@@ -15,9 +15,9 @@ $_config = [
         'UrlGroupName' => 'g',           // 自定义分组名称
     ],
     'db' => [
-        'dsn' => 'mysql:host=localhost;dbname=practice',
+        'dns' => 'mysql:host=127.0.0.1;dbname=test', // localhost 不行
         'username' => 'root',
-        'password' => '',
+        'password' => 'root',
         'param' => [],
     ],
     'smtp' => [],

@@ -46,13 +46,15 @@ class Route
     private function parseTradition()
     {
         $route = [];
-        $route['control'] = $_GET[$GLOBALS['_config']['UrlControllerName']] ?? $GLOBALS['_config']['defaultController'];
-        $route['action'] = $_GET[$GLOBALS['_config']['UrlActionName']] ?? $GLOBALS['_config']['defaultAction'];
-        $route['group'] = $_GET[$GLOBALS['_config']['UrlGroupName']] ?? $GLOBALS['_config']['defaultApp'];
+        $configRoute = $GLOBALS['_config']['route'];
+
+        $route['control'] = $_GET[$configRoute['UrlControllerName']] ?? $configRoute['defaultController'];
+        $route['action'] = $_GET[$configRoute['UrlActionName']] ?? $configRoute['defaultAction'];
+        $route['group'] = $_GET[$configRoute['UrlGroupName']] ?? $configRoute['defaultApp'];
 
         // 剩下的为方法参数
         foreach (['UrlControllerName', 'UrlActionName', 'UrlGroupName'] as $configUrl) {
-            unset($_GET[$GLOBALS['_config'][$configUrl]]);
+            unset($_GET[$configRoute[$configUrl]]);
         }
         $route['param'] = $_GET;
 
