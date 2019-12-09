@@ -1,0 +1,12 @@
+{
+    "name": "imzyf/lonicera",
+    "authors": [
+        {
+            "name": "zhaoyifan",
+            "email": "zhaoyifans@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/var-dumper": "^4.4"
+    }
+}
