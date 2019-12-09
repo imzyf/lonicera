@@ -21,4 +21,16 @@ class IndexController
 
         echo "hi action\n";
     }
+
+    // /index/createPo
+    public function createPoAction()
+    {
+        require_once _SYS_PATH.'core/DB.php';
+        require_once _SYS_PATH.'core/Model.php';
+
+        $model = new \Lonicera\core\Model();
+        $model->buildPO('user');
+
+        echo "createPoAction\n";
+    }
 }

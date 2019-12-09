@@ -11,6 +11,7 @@ class DB
     private $queryNum = 0;
     private static $instance;
     protected $PDOStatement;
+    private $dbname;
 
     // 事务数
     protected $transTimes = 0;
@@ -35,7 +36,9 @@ class DB
     public function connect($config)
     {
         try {
-            $this->dbLink = new PDO($config['dns'], $config['username'], $config['password'], $config['param']);
+            $this->dbname = $config['dbname'];
+            $dns = "{$config['db']}:host={$config['host']};dbname={$this->dbname}";
+            $this->dbLink = new PDO($dns, $config['username'], $config['password'], $config['param']);
         } catch (\PDOException $e) {
             throw $e;
         }
@@ -88,5 +91,10 @@ class DB
             $this->dbLink->execute("ROLLBACK TO SAVEPOINT tr{$this->transTimes}");
         }
         $this->transTimes = max(0, $this->transTimes - 1);
+    }
+
+    public function getDbname()
+    {
+        return $this->dbname;
     }
 }

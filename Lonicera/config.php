@@ -15,7 +15,9 @@ $_config = [
         'UrlGroupName' => 'g',           // 自定义分组名称
     ],
     'db' => [
-        'dns' => 'mysql:host=127.0.0.1;dbname=test', // localhost 不行
+        'db' => 'mysql',
+        'host' => '127.0.0.1', // localhost 不行
+        'dbname' => 'test',
         'username' => 'root',
         'password' => 'root',
         'param' => [],
