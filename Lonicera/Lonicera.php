@@ -13,7 +13,8 @@ class Lonicera
 
     public function run()
     {
-        require_once _SYS_PATH.'core/Route.php';
+        require_once _SYS_PATH.'core/Loader.php';
+        spl_autoload_register(['Lonicera\core\Loader', 'loadLibClass']);
         $this->route();
         $this->dispatch();
     }
@@ -26,27 +27,30 @@ class Lonicera
 
     public function dispatch()
     {
-        $controlName = ucfirst($this->route->control).'Controller';
+        $controlName = ucfirst($this->route->controller).'Controller';
         $actionName = $this->route->action.'Action';
         $group = $this->route->group;
-//        $className = "app\\{$group}\module\controller\\{$controlName}";
+        $className = "app\\{$group}\module\controller\\{$controlName}";
 
-        $path = _APP.$group.DIRECTORY_SEPARATOR.'module';
-        $path .= DIRECTORY_SEPARATOR.'controller'.DIRECTORY_SEPARATOR.$controlName.'.php';
+        // 改为使用 spl_autoload_register
+//        $path = _APP.$group.DIRECTORY_SEPARATOR.'module';
+//        $path .= DIRECTORY_SEPARATOR.'controller'.DIRECTORY_SEPARATOR.$controlName.'.php';
+//        require_once $path;
 
-        require_once $path;
-
-        $methods = get_class_methods($controlName);
+        $methods = get_class_methods($className);
         if (!in_array($actionName, $methods, true)) {
             throw new \Exception(sprintf('Method %s->%s not exists', $actionName, $actionName));
         }
 
-        $handler = new $controlName();
+        // 实例化控制器
+        $handler = new $className();
         $handler->param = $this->param; // TODO ??
-//        $reflectClass = new \ReflectionClass('Lonicera\core\Controller');
-//        $reflectedProperty = $reflectClass->getProperty('route');
-//        $reflectedProperty->setAccessible(true);
-//        $reflectedProperty->setValue($this->route);
+
+        // 将 route 信息注入到父控制器
+        $reflectClass = new \ReflectionClass('Lonicera\core\Controller');
+        $reflectedProperty = $reflectClass->getProperty('route');
+        $reflectedProperty->setAccessible(true);
+        $reflectedProperty->setValue($this->route);
         $handler->{$actionName}();
     }
 }

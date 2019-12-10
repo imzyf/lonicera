@@ -18,7 +18,7 @@ class Route
     // 分组名，或称 module
     public $group;
     // 控制器
-    public $control;
+    public $controller;
     // 控制的中的方法
     public $action;
     // 传给 action 的参数
@@ -32,7 +32,7 @@ class Route
     {
         $route = $this->getRequest();
         $this->group = $route['group'];
-        $this->control = $route['control'];
+        $this->controller = $route['controller'];
         $this->action = $route['action'];
         !empty($route['param']) && $this->param = $route['param'];
     }
@@ -48,7 +48,7 @@ class Route
         $route = [];
         $configRoute = $GLOBALS['_config']['route'];
 
-        $route['control'] = $_GET[$configRoute['UrlControllerName']] ?? $configRoute['defaultController'];
+        $route['controller'] = $_GET[$configRoute['UrlControllerName']] ?? $configRoute['defaultController'];
         $route['action'] = $_GET[$configRoute['UrlActionName']] ?? $configRoute['defaultAction'];
         $route['group'] = $_GET[$configRoute['UrlGroupName']] ?? $configRoute['defaultApp'];
 
@@ -103,7 +103,7 @@ class Route
 
         $route = [];
         $route['group'] = $GLOBALS['_config']['route']['defaultApp']; // 函数外的变量在函数中使用需要添加_GLOBALS
-        $route['control'] = $GLOBALS['_config']['route']['defaultController'];
+        $route['controller'] = $GLOBALS['_config']['route']['defaultController'];
         $route['action'] = $GLOBALS['_config']['route']['defaultAction'];
 
         switch ($cnt) {
@@ -116,10 +116,10 @@ class Route
                 if (stripos($reqArr[0], ':')) {
                     $gc = explode(':', $reqArr[0]);
                     $route['group'] = $gc[0];
-                    $route['control'] = $gc[1];
+                    $route['controller'] = $gc[1];
                 } else {
                     //缺少 group
-                    $route['control'] = $reqArr[0];
+                    $route['controller'] = $reqArr[0];
                 }
                 break;
 
@@ -128,11 +128,11 @@ class Route
                 if (stripos($reqArr[0], ':')) {
                     $gc = explode(':', $reqArr[0]);
                     $route['group'] = $gc[0];
-                    $route['control'] = $gc[1];
+                    $route['controller'] = $gc[1];
                     $route['action'] = $reqArr[1];
                 } else {
                     // 缺少分组
-                    $route['control'] = $reqArr[0];
+                    $route['controller'] = $reqArr[0];
                     $route['action'] = $reqArr[1];
                 }
                 //处理 /a/1/b/2 形式的参数
