@@ -37,7 +37,7 @@ class DB
             $dns = "{$config['db']}:host={$config['host']};dbname={$this->dbname}";
             $this->dbLink = new \PDO($dns, $config['username'], $config['password'], $config['param']);
         } catch (\PDOException $e) {
-            throw $e;
+            throw new BaseException('数据库连接失败', 1000, $e);
         }
 
         return $this->dbLink;

@@ -2,6 +2,7 @@
 
 namespace Lonicera;
 
+use Lonicera\core\BaseException;
 use Lonicera\core\Route;
 
 /**
@@ -68,7 +69,12 @@ class Lonicera
 
     public static function exceptionHandler($e)
     {
-        echo 'caught exception: ', $e->getMessage(),"\n";
+        if ($e instanceof BaseException) {
+            $e->errorMessage();
+        } else {
+            $newE = new BaseException('未知异常', 2000, $e);
+            $newE->errorMessage();
+        }
     }
 
     public static function errorHandler($errNo, $errStr, $errFile, $errLine)
