@@ -11,7 +11,7 @@ class IndexController extends \Lonicera\core\Controller
     {
         $user = new User();
         $user->name = 'Lee';
-        $user->age = 20;
+        $user->age = rand(12, 36);
         $user->save();
 
         $this->assign('age', $user->age + 1);
