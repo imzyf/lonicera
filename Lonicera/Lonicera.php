@@ -64,7 +64,18 @@ class Lonicera
         $reflectedProperty = $reflectClass->getProperty('route');
         $reflectedProperty->setAccessible(true);
         $reflectedProperty->setValue($this->route);
+
+        // 拦截器 hook
+        $this->handleInterceptor('preHandle');
+        if (in_array('_before_', $methods)) {
+            call_user_func([$handler, '_before_']);
+        }
         $handler->{$actionName}();
+        // 拦截器 hook
+        if (in_array('_after_', $methods)) {
+            call_user_func([$handler, '_after_']);
+        }
+        $this->handleInterceptor('postHandle');
     }
 
     public static function exceptionHandler($e)
@@ -84,5 +95,21 @@ class Lonicera
         echo $err;
         $tag = date('Ymd');
         file_put_contents(_RUNTIME."log-{$tag}.txt", $err, FILE_APPEND);
+    }
+
+    public function handleInterceptor($type)
+    {
+        $interceptorArr = $GLOBALS['_config']['interceptorArr'];
+        // 后置方法反向调用
+        if ('postHandle' == $type) {
+            $interceptorArr = array_reverse($interceptorArr);
+        }
+        $path = "{$this->route->group}/{$this->route->controller}/{$this->route->action}";
+        foreach ($interceptorArr as $key => $value) {
+            if ('*' == $value || preg_match($value, $path) > 0) {
+                $interceptor = new $key();
+                $interceptor->{$type}();
+            }
+        }
     }
 }

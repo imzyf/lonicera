@@ -23,4 +23,9 @@ $_config = [
         'param' => [],
     ],
     'smtp' => [],
+
+    'interceptorArr' => [
+        'app\front\module\interceptor\LoginInterceptor' => '*',
+        'app\front\module\interceptor\PayInterceptor' => '@^front/index/in(.*)@',
+    ],
 ];

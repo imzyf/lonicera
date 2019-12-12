@@ -6,6 +6,16 @@ use app\model\User;
 
 class IndexController extends \Lonicera\core\Controller
 {
+    public function _before_()
+    {
+        echo '_before_ function  <br/>';
+    }
+
+    public function _after_()
+    {
+        echo '_after_ function  <br/>';
+    }
+
     // /index/index
     public function indexAction()
     {
@@ -24,7 +34,7 @@ class IndexController extends \Lonicera\core\Controller
         $db = $this->db();
         $sql = 'select * from user where age > :age and id > :id';
         $ret = $db->query($sql, ['age' => 10, 'id' => 1]);
-        dd($ret);
+        dump($ret);
     }
 
     // /index/createPo
