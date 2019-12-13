@@ -2,7 +2,7 @@
 
 namespace app\front\module\controller;
 
-use app\model\User;
+use app\model\UserORM;
 
 class IndexController extends \Lonicera\core\Controller
 {
@@ -19,7 +19,7 @@ class IndexController extends \Lonicera\core\Controller
     // /index/index
     public function indexAction()
     {
-        $user = new User();
+        $user = new UserORM();
         $user->name = 'Lee';
         $user->age = rand(12, 36);
         $user->save();

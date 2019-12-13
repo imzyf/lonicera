@@ -2,6 +2,7 @@
 
 namespace Lonicera;
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Lonicera\core\BaseException;
 use Lonicera\core\Route;
 
@@ -28,6 +29,7 @@ class Lonicera
         // 处理异常
         set_exception_handler(['Lonicera\Lonicera', 'exceptionHandler']);
 
+        $this->db();
         $this->route();
         $this->dispatch();
     }
@@ -111,5 +113,28 @@ class Lonicera
                 $interceptor->{$type}();
             }
         }
+    }
+
+    private function db()
+    {
+        $capsule = new Capsule();
+        $config = $GLOBALS['_config']['db'];
+
+        $capsule->addConnection([
+            'driver' => $config['db'],
+            'host' => $config['host'],
+            'database' => $config['dbname'],
+            'username' => $config['username'],
+            'password' => $config['password'],
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+        ]);
+
+        // 使用设置静态变量方法，令当前的 Capsule 实例全局可用
+        $capsule->setAsGlobal();
+
+        // 启动 Eloquent ORM
+        $capsule->bootEloquent();
     }
 }
