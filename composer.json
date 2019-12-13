@@ -7,6 +7,14 @@
         }
     ],
     "require": {
+        "php": ">=7.1",
         "symfony/var-dumper": "^4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lonicera\\": "Lonicera",
+            "app\\": "app",
+            "library\\": "library"
+        }
     }
 }

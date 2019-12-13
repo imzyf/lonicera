@@ -14,8 +14,8 @@ class Lonicera
 
     public function run()
     {
-        require_once _SYS_PATH.'core/Loader.php';
-        spl_autoload_register(['Lonicera\core\Loader', 'loadLibClass']);
+//        require_once _SYS_PATH.'core/Loader.php';
+//        spl_autoload_register(['Lonicera\core\Loader', 'loadLibClass']);
         if ('debug' == $GLOBALS['_config']['mode']) {
             if (substr(PHP_VERSION, 0, 3) > '5.5') {
                 error_reporting(E_ALL);

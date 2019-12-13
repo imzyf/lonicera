@@ -3,7 +3,7 @@
 namespace Lonicera\core;
 
 /**
- * Loader.
+ * 已弃用，改用使用 composer 管理.
  */
 class Loader
 {
