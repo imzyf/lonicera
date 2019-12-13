@@ -13,10 +13,12 @@ class Controller
     private $view;
     // 被反射注入
     protected static $route;
+    protected $request;
 
     public function __construct()
     {
         $this->view = new render\PhpRender();
+        $this->request = new Request();
     }
 
     protected function assign($key, $value)

@@ -28,12 +28,14 @@ class IndexController extends \Lonicera\core\Controller
         $this->display();
     }
 
-    // /index/hi
+    // /index/hi?age=12
     public function hiAction()
     {
+        $age = $this->request->getInt('age');
+        dump($age);
         $db = $this->db();
         $sql = 'select * from user where age > :age and id > :id';
-        $ret = $db->query($sql, ['age' => 10, 'id' => 1]);
+        $ret = $db->query($sql, ['age' => $age, 'id' => 1]);
         dump($ret);
     }
 
