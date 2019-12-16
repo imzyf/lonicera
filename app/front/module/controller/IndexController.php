@@ -3,6 +3,8 @@
 namespace app\front\module\controller;
 
 use app\model\UserORM;
+use library\Container\Container;
+use Lonicera\core\Model;
 
 class IndexController extends \Lonicera\core\Controller
 {
@@ -42,9 +44,29 @@ class IndexController extends \Lonicera\core\Controller
     // /index/createPo
     public function createPoAction()
     {
-        $model = new \Lonicera\core\Model();
+        $model = new Model();
         $model->buildPO('user');
 
         echo "createPoAction\n";
+    }
+
+    // /index/container
+    public function containerAction()
+    {
+        $user = new UserORM();
+
+        $container = new Container();
+        $container->set('user', $user);
+        $container->user->name = 'Bob';
+        $container->user->age = rand(12, 36);
+        dump($container->user->callback());
+
+        $result = $container->callback('user', 'save');
+        dump($result);
+        $container->inject('user', 'selectBob', function () {
+            return UserORM::query()->where('name', '=', 'Bob')->get()->toArray();
+        });
+        $bobs = $container->callback('user', 'selectBob');
+        dump($bobs);
     }
 }

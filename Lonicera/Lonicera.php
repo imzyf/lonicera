@@ -85,7 +85,7 @@ class Lonicera
         if ($e instanceof BaseException) {
             $e->errorMessage();
         } else {
-            $newE = new BaseException('未知异常', 2000, $e);
+            $newE = new BaseException('未知异常，'.$e->getMessage(), 2000, $e);
             $newE->errorMessage();
         }
     }

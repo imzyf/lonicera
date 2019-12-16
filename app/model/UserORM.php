@@ -8,9 +8,4 @@ use Lonicera\core\BaseModel;
 class UserORM extends BaseModel
 {
     protected $table = 'user';
-
-    public $id;
-    // 名字
-    public $name;
-    public $age;
 }
