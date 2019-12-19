@@ -4,9 +4,6 @@ namespace library\render;
 
 use Lonicera\core\Render;
 
-/**
- * PhpRender.
- */
 class PhpRender implements Render
 {
     private $value = [];

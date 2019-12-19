@@ -2,7 +2,7 @@
 
 namespace Lonicera\core;
 
-use library\render;
+use library\Render\PhpRender;
 
 /**
  * Base Controller.
@@ -17,7 +17,7 @@ class Controller
 
     public function __construct()
     {
-        $this->view = new render\PhpRender();
+        $this->view = new PhpRender();
         $this->request = new Request();
     }
 
